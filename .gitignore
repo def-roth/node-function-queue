@@ -1,0 +1,5 @@
+/node_modules/
+/node-function-queue.iml
+/package-lock.json
+/.gitignore
+/.idea/
