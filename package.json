@@ -1,7 +1,27 @@
 {
   "name": "node-function-queue",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "devDependencies": {
     "@types/node": "^20.5.6"
-  }
+  },
+  "description": "Queue functions and handle them like they were async",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/def-roth/node-function-queue.git"
+  },
+  "keywords": [
+    "queue",
+    "function",
+    "javascript"
+  ],
+  "author": "def-roth",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/def-roth/node-function-queue/issues"
+  },
+  "homepage": "https://github.com/def-roth/node-function-queue#readme"
 }

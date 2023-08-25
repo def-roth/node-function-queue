@@ -54,7 +54,7 @@ interface Task {
 }
 
 
-export default class Queue extends EventEmitter {
+export default class NodeFunctionQueue extends EventEmitter {
 
   private readonly _id: string;
   private readonly _concurrency: number;
