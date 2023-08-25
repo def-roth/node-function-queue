@@ -1,0 +1,7 @@
+{
+  "name": "node-function-queue",
+  "version": "0.1.0",
+  "devDependencies": {
+    "@types/node": "^20.5.6"
+  }
+}
