@@ -91,7 +91,7 @@ export class NodeFunctionQueue extends EventEmitter {
    * Creates a worker and adds it to the worker pool.
    * @returns {void}
    */
-  private  _putWorker = () => {
+  private _putWorker = () => {
     const worker = this._createWorker();
     worker.release();
   }
@@ -255,7 +255,7 @@ export class NodeFunctionQueue extends EventEmitter {
    * @returns {Promise<unknown>} The result of the function
    * */
   public wrapQ = (_function: Function, config?: TaskConfig) => {
-    return async (...args) => new Promise((resolve, reject) => this.callbackQ(_function(...args), resolve, reject, config))
+    return async (...args) => new Promise((resolve, reject) => this.callbackQ(()=>_function(...args), resolve, reject, config))
   }
 
 }
