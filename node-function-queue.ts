@@ -255,7 +255,7 @@ export class NodeFunctionQueue extends EventEmitter {
    * @returns {Promise<unknown>} The result of the function
    * */
   public wrapQ = (_function: Function, config?: TaskConfig) => {
-    return async (...args) => new Promise((resolve, reject) => this.callbackQ(()=>_function(...args), resolve, reject, config))
+    return async (...args) => this.asyncQ(()=>_function(...args), config)
   }
 
 }
