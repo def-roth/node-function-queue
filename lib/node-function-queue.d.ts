@@ -70,7 +70,7 @@ export declare class NodeFunctionQueue extends EventEmitter {
      *
      * @returns {Promise<unknown>} The result of the task
      * */
-    callbackQ(task: Function, resolve: Function, reject: Function, config?: TaskConfig): void;
+    callbackQ: (task: Function, resolve: Function, reject: Function, config?: TaskConfig) => void;
     /**
      * Transforms your async function to a queued function.
      * instead of using
@@ -111,7 +111,7 @@ export declare class NodeFunctionQueue extends EventEmitter {
      *
      * @returns {Promise<unknown>} The result of the task
      * */
-    asyncQ(task: Function, config?: TaskConfig): Promise<unknown>;
+    asyncQ: (task: Function, config?: TaskConfig) => Promise<unknown>;
     /**
      * Wraps your function to a queued function.
      * For reusability you can wrap your function to a queued function.
@@ -128,5 +128,5 @@ export declare class NodeFunctionQueue extends EventEmitter {
      *
      * @returns {Promise<unknown>} The result of the function
      * */
-    wrapQ(_function: Function, config?: TaskConfig): (...args: any[]) => Promise<unknown>;
+    wrapQ: (_function: Function, config?: TaskConfig) => (...args: any[]) => Promise<unknown>;
 }

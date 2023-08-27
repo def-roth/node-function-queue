@@ -8,14 +8,14 @@ class Worker {
     this.release = releaseEvent;
   }
 
-  public run(task: Function, resolve: Function, onError=(e: Error)=>console.log(e)) {
+  public run = (task: Function, resolve: Function, onError=(e: Error)=>console.log(e)) => {
     task()
       .then((res)=>resolve(res))
       .catch((e)=>onError(e))
       .then(() => this.release());
   }
 
-  public runTimeout(task: Function, resolve: Function, onError=(e: Error)=>console.log(e), timeout=30) {
+  public runTimeout = (task: Function, resolve: Function, onError=(e: Error)=>console.log(e), timeout=30) =>  {
     const rejectionPromise = this.rejectAfter(timeout);
     const taskPromise = task();
     Promise.race([
@@ -27,7 +27,7 @@ class Worker {
       .then(() => this.release());
   }
 
-  private rejectAfter(timeout: number) {
+  private rejectAfter = (timeout: number)  =>  {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         reject(new Error("Timeout"));
@@ -91,7 +91,7 @@ export class NodeFunctionQueue extends EventEmitter {
    * Creates a worker and adds it to the worker pool.
    * @returns {void}
    */
-  private _putWorker() {
+  private  _putWorker = () => {
     const worker = this._createWorker();
     worker.release();
   }
@@ -101,7 +101,7 @@ export class NodeFunctionQueue extends EventEmitter {
    *
    * @returns {Worker} The worker
    * */
-  private _createWorker() {
+  private _createWorker = () => {
     const worker = new Worker(() => {
       this._workers.push(worker);
       this.emit(releaseEvent);
@@ -109,7 +109,7 @@ export class NodeFunctionQueue extends EventEmitter {
     return worker;
   }
 
-  private _getConfig(config) {
+  private _getConfig = (config) => {
     const used = config ? {...this._defaultConfig, ...config} : {...this._defaultConfig};
     used.retry = 0;
     return used;
@@ -136,7 +136,7 @@ export class NodeFunctionQueue extends EventEmitter {
    *
    * @returns {void}
    * */
-  private _queue(task: Function, resolve: Function, reject: Function, config: TaskConfig) {
+  private _queue = (task: Function, resolve: Function, reject: Function, config: TaskConfig) => {
 
     const {retries, waitBeforeRetry, retry, retryAfterTimeout} = config;
 
@@ -190,7 +190,7 @@ export class NodeFunctionQueue extends EventEmitter {
    *
    * @returns {Promise<unknown>} The result of the task
    * */
-  public callbackQ(task: Function, resolve: Function, reject: Function, config?: TaskConfig) {
+  public callbackQ = (task: Function, resolve: Function, reject: Function, config?: TaskConfig) => {
     this._queue(task, resolve, reject, this._getConfig(config))
   }
 
@@ -234,7 +234,7 @@ export class NodeFunctionQueue extends EventEmitter {
    *
    * @returns {Promise<unknown>} The result of the task
    * */
-  public async asyncQ(task: Function, config?: TaskConfig) {
+  public asyncQ = async (task: Function, config?: TaskConfig) => {
     return new Promise((resolve, reject) => this.callbackQ(task, resolve, reject, config))
   }
 
@@ -254,7 +254,7 @@ export class NodeFunctionQueue extends EventEmitter {
    *
    * @returns {Promise<unknown>} The result of the function
    * */
-  public wrapQ(_function: Function, config?: TaskConfig) {
+  public wrapQ = (_function: Function, config?: TaskConfig) => {
     return async (...args) => new Promise((resolve, reject) => this.callbackQ(_function(...args), resolve, reject, config))
   }
 
