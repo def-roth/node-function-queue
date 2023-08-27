@@ -4,30 +4,28 @@ const releaseEvent = Symbol('releaseEvent');
 
 class Worker {
   public release: Function;
+
   constructor(releaseEvent: Function) {
     this.release = releaseEvent;
   }
 
-  public run = (task: Function, resolve: Function, onError=(e: Error)=>console.log(e)) => {
+  public run = (task: Function, resolve: Function, onError = (e: Error) => console.log(e)) => {
     task()
-      .then((res)=>resolve(res))
-      .catch((e)=>onError(e))
+      .then((res) => resolve(res))
+      .catch((e) => onError(e))
       .then(() => this.release());
   }
 
-  public runTimeout = (task: Function, resolve: Function, onError=(e: Error)=>console.log(e), timeout=30) =>  {
+  public runTimeout = (task: Function, resolve: Function, onError = (e: Error) => console.log(e), timeout = 30) => {
     const rejectionPromise = this.rejectAfter(timeout);
     const taskPromise = task();
-    Promise.race([
-      taskPromise,
-      rejectionPromise,
-    ])
-      .then((res)=>resolve(res))
-      .catch((e)=>onError(e))
+    Promise.race([taskPromise, rejectionPromise,])
+      .then((res) => resolve(res))
+      .catch((e) => onError(e))
       .then(() => this.release());
   }
 
-  private rejectAfter = (timeout: number)  =>  {
+  private rejectAfter = (timeout: number) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         reject(new Error("Timeout"));
@@ -69,10 +67,7 @@ export class NodeFunctionQueue extends EventEmitter {
     this._workers = [];
     this._tasks = [];
     this._defaultConfig = {
-      retries: 100,
-      waitBeforeRetry: 15,
-      retryAfterTimeout: 30,
-      retry: 0,
+      retries: 100, waitBeforeRetry: 15, retryAfterTimeout: 30, retry: 0,
     }
 
     this.on(releaseEvent, () => {
@@ -145,7 +140,6 @@ export class NodeFunctionQueue extends EventEmitter {
       return;
     }
 
-
     if (this._workers[0]) {
 
       config.retry++;
@@ -166,13 +160,12 @@ export class NodeFunctionQueue extends EventEmitter {
         }
       };
 
-      schedule( task, resolve, onError, retryAfterTimeout );
+      schedule(task, resolve, onError, retryAfterTimeout);
 
     } else {
       this._tasks.push({task, resolve, reject, config});
     }
   }
-
 
   /**
    * Queues a task and resolves when the task is done.
@@ -255,7 +248,7 @@ export class NodeFunctionQueue extends EventEmitter {
    * @returns {Promise<unknown>} The result of the function
    * */
   public wrapQ = (_function: Function, config?: TaskConfig) => {
-    return async (...args) => this.asyncQ(()=>_function(...args), config)
+    return async (...args) => this.asyncQ(() => _function(...args), config)
   }
 
 }
