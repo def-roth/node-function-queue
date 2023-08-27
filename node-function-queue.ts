@@ -154,17 +154,22 @@ export class NodeFunctionQueue extends EventEmitter {
 
       const schedule = retryAfterTimeout > 0 ? worker.runTimeout : worker.run;
 
-      schedule(task, resolve, (e) => {
-        if (waitBeforeRetry > 0) {
-          setTimeout(() => {
-            this._queue(task, resolve, reject, config);
-          }, waitBeforeRetry * 1000);
-        } else if (waitBeforeRetry === 0) {
-          this._queue(task, resolve, reject, config);
-        } else {
-          reject(e)
-        }
-      });
+      schedule(
+        task,
+        resolve,
+        (e) => {
+            if (waitBeforeRetry > 0) {
+              setTimeout(() => {
+                this._queue(task, resolve, reject, config);
+              }, waitBeforeRetry * 1000);
+            } else if (waitBeforeRetry === 0) {
+              this._queue(task, resolve, reject, config);
+            } else {
+              reject(e)
+            }
+          },
+        retryAfterTimeout
+      );
 
     } else {
       this._tasks.push({task, resolve, reject, config});

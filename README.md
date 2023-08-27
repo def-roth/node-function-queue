@@ -3,6 +3,12 @@
 Usually when working with queues you are using callbacks. This can be a bit of a pain to work with. This module allows
 you to use promises in async/await - style instead.
 
+### Install
+
+```bash
+npm install node-function-queue
+```
+
 ### Import
 
 ```javascript
@@ -27,11 +33,54 @@ const processed = processResult(result);
 // with queue
 const result = await transactionQ.asyncQ(() => myFunction(data));
 const processed = processResult(result);
-
-
 ```
 
-## Usual callback queue
+### Functions
+
+#### asyncQ: Transform an async function into an awaitable queue-function
+
+```javascript
+const myFunction = async (data) => {
+	const result = await doSomething(data);
+	return result;
+};
+const result = await transactionQ.asyncQ(() => myFunction(data));
+```
+#### wrapQ: Wrap a function into  an awaitable queue-function
+
+```javascript
+const myFunctionQ = transactionQ.wrapQ(async (data) => {
+	const result = await doSomething(data);
+	return result;
+});
+const result = await myFunctionQ(data);
+```
+#### callbackQ: Callback style queue 
+```javascript
+const myFunction = async (data) => {
+	// something
+};
+const resolve = (result) => {
+    // something
+};
+const reject = (err) => {
+	// something
+};
+
+transactionQ.callbackQ(()=>myFunction(data), resolve, reject);
+```
+
+#### Queue Config
+All exposed queue functions take an optional config object as last parameter. The config object can contain the following properties:
+```javascript
+const defaultConfig = {
+	retries: 100, // number of retries before the job is canceled, if 0 the job is tried once and if negative the job is not attempted at all, be careful when using Infinity
+	waitBeforeRetry: 15, // seconds after the which the job is retried, if 0 immediately and if negative an error is thrown immediately, careful when using 0
+	retryAfterTimeout: 30, // seconds after which the job is canceled, if 0 or negative the job is never canceled, careful when using 0
+}
+```
+
+### Generic callback queue
 
 More often than not multiple queues are used and depend on each other
 
