@@ -1,4 +1,4 @@
-# Fully agnostic node queue
+## Fully agnostic node queue
 
 Usually when working with queues you are using callbacks. This can be a bit of a pain to work with. This module allows
 you to use promises in async/await - style instead.
@@ -228,3 +228,7 @@ Almost half the lines of code and in one place. This is much easier to read and 
 Due to the agnostic nature of this module, you can use it for anything what is a promise. This includes calling your mom on sunday.
 
 
+// ToDo Benchmarks
+Expect wrap to be fastest and asyncQ to be slowest. As this runs on node only it doesn't need redis and serialization, it should kill on benchmarks. 
+
+// ToDo Tests

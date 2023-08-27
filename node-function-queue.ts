@@ -110,7 +110,7 @@ export class NodeFunctionQueue extends EventEmitter {
   }
 
   private _getConfig(config) {
-    const used = config ? {...this._defaultConfig, ...config} : this._defaultConfig;
+    const used = config ? {...this._defaultConfig, ...config} : {...this._defaultConfig};
     used.retry = 0;
     return used;
   }
@@ -154,22 +154,19 @@ export class NodeFunctionQueue extends EventEmitter {
 
       const schedule = retryAfterTimeout > 0 ? worker.runTimeout : worker.run;
 
-      schedule(
-        task,
-        resolve,
-        (e) => {
-            if (waitBeforeRetry > 0) {
-              setTimeout(() => {
-                this._queue(task, resolve, reject, config);
-              }, waitBeforeRetry * 1000);
-            } else if (waitBeforeRetry === 0) {
-              this._queue(task, resolve, reject, config);
-            } else {
-              reject(e)
-            }
-          },
-        retryAfterTimeout
-      );
+      const onError = (e) => {
+        if (waitBeforeRetry > 0) {
+          setTimeout(() => {
+            this._queue(task, resolve, reject, config);
+          }, waitBeforeRetry * 1000);
+        } else if (waitBeforeRetry === 0) {
+          this._queue(task, resolve, reject, config);
+        } else {
+          reject(e)
+        }
+      };
+
+      schedule( task, resolve, onError, retryAfterTimeout );
 
     } else {
       this._tasks.push({task, resolve, reject, config});
