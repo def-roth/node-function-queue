@@ -1,13 +1,19 @@
 /// <reference types="node" />
 import { EventEmitter } from 'node:events';
-interface TaskConfig {
+export interface TaskConfig {
     retry: number;
     retries: number;
     waitBeforeRetry: number;
     retryAfterTimeout: number;
     killAfterElapsed?: number;
 }
-export default class NodeFunctionQueue extends EventEmitter {
+export interface Task {
+    resolve: Function;
+    reject: Function;
+    task: Function;
+    config: TaskConfig;
+}
+export declare class NodeFunctionQueue extends EventEmitter {
     private readonly _id;
     private readonly _concurrency;
     private readonly _workers;
@@ -124,4 +130,3 @@ export default class NodeFunctionQueue extends EventEmitter {
      * */
     wrapQ(_function: Function, config?: TaskConfig): (...args: any[]) => Promise<unknown>;
 }
-export {};

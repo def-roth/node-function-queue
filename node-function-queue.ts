@@ -37,7 +37,7 @@ class Worker {
 }
 
 
-interface TaskConfig {
+export interface TaskConfig {
   retry: number,
   retries: number,
   waitBeforeRetry: number,
@@ -46,7 +46,7 @@ interface TaskConfig {
 }
 
 
-interface Task {
+export interface Task {
   resolve: Function,
   reject: Function,
   task: Function,
@@ -54,7 +54,7 @@ interface Task {
 }
 
 
-export default class NodeFunctionQueue extends EventEmitter {
+export class NodeFunctionQueue extends EventEmitter {
 
   private readonly _id: string;
   private readonly _concurrency: number;
