@@ -1,13 +1,15 @@
 {
   "name": "node-function-queue",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "devDependencies": {
-    "@types/node": "^20.5.6"
+    "@types/node": "^20.5.6",
+    "typescript": "^5.2.2"
   },
-  "description": "Queue functions and handle them like they were async",
-  "main": "index.ts",
+  "description": "Queuing functions made easy. So 'const result = await request(data);' becomes const result = await queue.async(() => request(data));",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -23,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/def-roth/node-function-queue/issues"
   },
-  "homepage": "https://github.com/def-roth/node-function-queue#readme"
+  "homepage": "https://github.com/def-roth/node-function-queue#readme",
+  "directories": {
+    "lib": "lib"
+  }
 }

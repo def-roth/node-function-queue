@@ -1,15 +1,15 @@
 {
-  "esm": true,
-  "experimentalSpecifierResolution": "node",
   "compilerOptions": {
-    "baseUrl": "src",
-    "module": "ES2020",
+    "incremental": true,
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "lib",
     "esModuleInterop": true,
-    "target": "ES2020",
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "outDir": "dist"
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "lib": ["es2015"],
-
+  "include": [
+    "index.ts"
+  ]
 }
