@@ -14,7 +14,7 @@ npm install node-function-queue
 ```javascript
 import {NodeFunctionQueue} from "node-function-queue";
 
-const transactionQ = new NodeFunctionQueue();
+const transactionQ = new NodeFunctionQueue(id="transaction queue", concurrency=10);
 ```
 
 ### Usage
@@ -182,10 +182,10 @@ retries. This is where this module comes in.
 Although the provided example is easy to scale and concerns are separated, it is still a lot of code to write and
 maintain. This module allows you to write the same code in a much more readable way.
 
-## Promise Queue
+## Promise Queue async wrapping
 
 ```javascript
-const transactionQ = new NodeFunctionQueue();
+const transactionQ = new NodeFunctionQueue("my-id", 10);
 const asyncQ = transactionQ.asyncQ;
 
 webhook.on('payment', async (req, res) => {
@@ -198,9 +198,9 @@ webhook.on('payment', async (req, res) => {
 		return;
 	}
 	
-	const processedPdf = await asyncQ(() => createPdf(processedPayment));
-	if (!processedPdf.success) {
-		await processError(processedPdf);
+	const pdf = await asyncQ(() => createPdf(processedPayment));
+	if (!pdf.success) {
+		await processError(pdf);
 		return;
 	}
 	
@@ -208,7 +208,7 @@ webhook.on('payment', async (req, res) => {
 		asyncQ(() => sendTransactionMail(pdf, processedPayment)),
 		asyncQ(() => createInvoiceRecord(pdf, processedPayment)),
 	];
-	
+	// run them in parallel with Promise allSettled
 	const settled = await Promise.allSettled(promises);
 	
 	const email = settled[0];
@@ -224,6 +224,41 @@ webhook.on('payment', async (req, res) => {
 });
 ```
 Almost half the lines of code and in one place. This is much easier to read and maintain.
+
+## Promise Queue function wrapping
+
+```javascript
+const transactionQ = new NodeFunctionQueue("my-id", 10);
+// wrapQ returns a function that can be called with the same parameters as the original function
+const paymentProcessorQ = transactionQ.wrapQ(paymentProcessor);
+const createPdfQ = transactionQ.wrapQ(createPdf);
+const sendTransactionMailQ = transactionQ.wrapQ(sendTransactionMail);
+const createInvoiceRecordQ = transactionQ.wrapQ(createInvoiceRecord);
+
+webhook.on('payment', async (req, res) => {
+	const {payment} = req.body;
+	
+	const processedPayment = await paymentProcessorQ(payment);
+	if (!processedPayment.success) {
+		await processError(processedPayment);
+		return;
+	}
+	
+	const pdf = await createPdfQ(processedPayment);
+	if (!pdf.success) {
+		await processError(processedPdf);
+		return;
+	}
+	
+	const promises = [sendTransactionMailQ, createInvoiceRecordQ].map(_f => _f(pdf, processedPayment));
+	const settled = await Promise.allSettled(promises);
+	
+	for (const {status, value} of settled) {
+			if (status === "rejected" || !value.success) await processError(value);
+	}
+});
+```
+WrapQ is a total no-brainer. By wrapping the original functions you can use them as they are and don't have to change anything. This is especially useful when you are using third party libraries.
 
 Due to the agnostic nature of this module, you can use it for anything what is a promise. This includes calling your mom on sunday.
 
