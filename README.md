@@ -1,7 +1,8 @@
 ## Fully agnostic node queue
 
 Usually when working with queues you are using callbacks. This can be a bit of a pain to work with. This module allows
-you to use promises in async/await - style instead.
+you to use promises in async/await - style instead. It allows fast prototyping and easy separation of concerns. 
+You can scale easily without changing the logic as your project grows.
 
 ### Install
 
@@ -260,8 +261,71 @@ webhook.on('payment', async (req, res) => {
 ```
 WrapQ is a total no-brainer. By wrapping the original functions you can use them as they are and don't have to change anything. This is especially useful when you are using third party libraries.
 
-Due to the agnostic nature of this module, you can use it for anything what is a promise. This includes calling your mom on sunday.
+Due to the agnostic nature of this module, you can use it for anything what is a promise.
 
+## Separation of concerns
+
+Separating the queues into different files is still possible. 
+
+```javascript
+const transactionPaymentQ = new NodeFunctionQueue("transactionPaymentQ", 10);
+const paymentProcessorQ = transactionPaymentQ.wrapQ(paymentProcessor);
+export default paymentProcessorQ;
+```
+
+```javascript
+const transactionCreatePdfQ = new NodeFunctionQueue("transactionCreatePdfQ", 10);
+const createPdfQ = transactionCreatePdfQ.wrapQ(paymentProcessor);
+export default createPdfQ;
+```
+
+```javascript
+const transactionMailQ = new NodeFunctionQueue("transactionMailQ", 10);
+const sendTransactionMailQ = transactionMailQ.wrapQ(paymentProcessor);
+export default sendTransactionMailQ;
+```
+
+```javascript
+const transactionCreateInvoiceRecordQ = new NodeFunctionQueue("transactionCreateInvoiceRecordQ", 10);
+const createInvoiceRecordQ = transactionCreateInvoiceRecordQ.wrapQ(paymentProcessor);
+export default createInvoiceRecordQ;
+```
+
+```javascript
+import paymentProcessorQ from "./paymentProcessorQ";
+import createPdfQ from "./createPdfQ";
+import sendTransactionMailQ from "./sendTransactionMailQ";
+import createInvoiceRecordQ from "./createInvoiceRecordQ";
+
+export {paymentProcessorQ, createPdfQ, sendTransactionMailQ, createInvoiceRecordQ}
+```
+
+
+```javascript
+import {createInvoiceRecordQ, createPdfQ, sendTransactionMailQ, createInvoiceRecordQ} from "./queues";
+
+webhook.on('payment', async (req, res) => {
+	const {payment} = req.body;
+	
+	const processedPayment = await paymentProcessorQ(payment);
+	if (!processedPayment.success) {
+		await processError(processedPayment);
+		return;
+	}
+	
+	const pdf = await createPdfQ(processedPayment);
+	if (!pdf.success) {
+		await processError(processedPdf);
+		return;
+	}
+	
+	const promises = [sendTransactionMailQ, createInvoiceRecordQ].map(_f => _f(pdf, processedPayment));
+	const settled = await Promise.allSettled(promises);
+	for (const {status, value} of settled) if (status === "rejected" || !value.success) await processError(value);
+});
+```
+
+From this point on you can go into distributing the queues across multiple machines or further separate the queues from the main process.
 
 // ToDo Benchmarks
 Expect wrap to be fastest and asyncQ to be slowest. As this runs on node only it doesn't need redis and serialization, it should kill on benchmarks. 
